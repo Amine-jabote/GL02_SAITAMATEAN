@@ -1,0 +1,267 @@
+const fs = require('fs');
+const { readFileSync, promises: fsPromises } = require('fs');
+const { get } = require('http');
+const { emitWarning, exit } = require('process');
+const readline = require('readline');
+const { receiveMessageOnPort } = require('worker_threads');
+const { Console } = require('console');
+const { isNull } = require('util');
+var questions = [];
+var resultdetail = [];
+var resultcontent = [];
+
+const r1 = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+})
+
+
+
+var QuestionType = {
+    TOF: 1,                  // true/false
+    QCM: 2,                  // multiple choice with specified feedback for right and wrong answers
+    FILL_IN_THE_BLANK: 3,    // fill-in-the-blank
+    MATCHING: 4,             // matching
+    ESSAY: 5,                // essay
+    properties: {
+        1: { name: "TOF", value: 1 },
+        2: { name: "QCM", value: 2 },
+        3: { name: "FILL_IN_THE_BLANK", value: 3 },
+        4: { name: "MATCHING", value: 4 },
+        5: { name: "ESSAY", value: 5 },
+    }
+}
+
+
+class Question {
+    constructor(questionTitle = '', question = '', questionType = 0
+        , options = []) {
+
+        this._questionType = questionType;
+        this._options = options;
+    }
+
+    get questionType() { return this._questionType; }
+    get options() { return this._options; }
+
+
+    set questionType(questionType) { this._questionType = questionType; }
+    set options(options) { this._options = options; }
+}
+
+function getQuestionType(options) {
+    let questionType;
+    if (options === null) {
+        questionType = QuestionType.ESSAY;
+    } else if (options === "TRUE" || options === "T" || options === "F" || options === "FALSE") {
+        questionType = QuestionType.TOF;
+    } else if (/.*->.*/.test(options)) {
+        questionType = QuestionType.MATCHING;
+    } else {
+        let isTransferred = false, isQCM = false;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i] === '\\' && !isTransferred) {
+                isTransferred = true;
+            }
+            else if (isTransferred) {
+                isTransferred = false;
+            }
+            else if (options[i] === '~') {
+                isQCM = true;
+                questionType = QuestionType.QCM;
+            }
+            else if (options[i] === '=' && !isQCM) {
+                questionType = QuestionType.FILL_IN_THE_BLANK;
+            }
+        }
+    }
+    return questionType;
+}
+
+
+
+
+fs.readdir('./Forms/', function (err, forms) {
+    // On vérifie si des forms existent
+    let ree = forms.length
+    if (ree == "0") {
+        console.log("\n You have no form ! Create one to resume the process \n")
+        r1.close();
+    } else {
+        // On affiche le nom des forms
+        console.log("--------------------Forms-------------------------\n")
+        for (var a = 0; a < forms.length; a++) {
+            console.log(a, "-", forms[a]);
+        }
+        console.log("---------------------------------------------------\n")
+
+        r1.question('In wich Form you want modify a question (Select a number) ', function (numform) {
+            //On vérifie l'insertion du user
+            let typenumform = null;
+            if ((numform.match(/[^0-9+]/g))) {
+                typenumform = "notok"
+            }
+            if ((numform < 0) || (numform > forms.length - 1) || (typenumform != null) || (numform.trim() == "")) {
+
+                console.log("The inserted argument is false ");
+
+                r1.close();
+
+            } else {
+                fs.readFile("./Forms/" + forms[numform], function doc(err, data) {
+                    // On traite questions par question en splitant le form
+                    if (err) throw err;
+                    const document = data.toString();
+                    let quest = (document.split('\n::'));
+                    const firstElement = quest.shift();
+                    for (var i = 0; i < quest.length; i++) {
+                        var thequestion = [];
+                        if ((quest[i])) {
+                            let array = quest[i].trim()
+
+                            if (array[0] != ":") {
+                                array = "::" + array
+                                console.log("Question", i, ":\n", array, "\n")
+                                //Pour les retours à la ligne qui posent problème
+                                let part = array.split('\n');
+                                for (var j = 0; j < part.length; j++) {
+                                    thequestion.push(part[j].trim());
+                                }
+                            } else {
+                                console.log("Question", i, ":\n", array, "\n")
+                                //questions.push(array)
+                                let part = array.split('\n');
+                                for (var j = 0; j < part.length; j++) {
+                                    thequestion.push(part[j].trim());
+                                }
+                            }
+                            let final = thequestion.toString();
+                            let top = final.replace(/,/g, " ")
+                            questions.push(top)
+
+
+
+                            let ask = array.split("::");
+                            let detailquesx = ask.length - 2;
+                            let endquesx = ask.length - 1;
+
+                            // Partie titre dans un tableau
+                            resultdetail.push(ask[detailquesx]);
+                            //Partie contenu dans un tableau
+                            resultcontent.push(ask[endquesx]);
+
+                        }
+                    }
+
+                    r1.question('\n Insert the number of the question you want to modify ', function (num) {
+                        let typenums = null;
+                        if ((num.match(/[^0-9+]/g))) {
+                            typenums = "notok"
+                        }
+                        if ((num < 0) || (num > questions.length - 1) || (num.trim() == "") || (typenums != null)) {
+                            console.log("There is no question", num)
+                            r1.close();
+                        } else {
+                            let questmodif = questions[num];
+                            let laques = questmodif.split("::");
+                            let detailques = laques.length - 2;
+                            let endques = laques.length - 1;
+                            let re = new RegExp(`{.*}`, 'gi')
+                            let lesoptions = "test"
+// On vérifie que la question contient des options
+                            if (re.test(laques[endques])) {
+                                lesoptions=null
+                                let optionsques1 = laques[endques].split("{");
+                                let optionsques2 = optionsques1[optionsques1.length - 1].split("}");
+                                //  console.log("detail "+laques[detailques]);
+                                //  console.log("quest: "+laques[endques])
+                                //  console.log("options",optionsques2)
+                                let qoptions = optionsques2[optionsques2.length - 2]
+
+                                if (qoptions) {
+                                    lesoptions = qoptions;
+                                }
+                            }
+
+                            // console.log("options:", lesoptions)
+                            let question = new Question();
+                            // console.log(question.questionType = getQuestionType(lesoptions));
+
+                            // On récupère le type de la question
+                            let questtype = (question.questionType = getQuestionType(lesoptions))
+                            if (questtype == undefined) {
+                                console.log("\n Bad format of question delete it")
+                                r1.close();
+                            } else {
+                                // Le user insère la question modifiée
+                                console.log("You are trying to modify an", QuestionType.properties[questtype].name, "question\n")
+                                console.log("Insert directly the question new content without the title\n")
+                                r1.question('Insert now the new content of the question ', function (modified) {
+                                   
+                                    //  console.log(modified)
+                                    let reg = new RegExp(`{.*}`, 'gi')
+                                    // console.log(re.test(modified))
+                                    let lesoptionsnew = "test"
+                                    if (reg.test(modified)) {
+                                        lesoptionsnew = null;
+                                        let optionsquesmod1 = modified.split("{");
+                                        let optionsquesmod2 = optionsquesmod1[optionsquesmod1.length - 1].split("}");
+                                        //  console.log("detail "+laques[detailques]);
+                                        //  console.log("quest: "+laques[endques])
+                                        // console.log("options",optionsquesmod1)
+                                        // console.log("options",optionsquesmod2)
+                                        let qoptionsmod = optionsquesmod2[optionsquesmod2.length - 2]
+                                        if ((qoptionsmod)) {
+                                            lesoptionsnew = qoptionsmod;
+                                        }
+                                    }
+                                    //on récupère le type de la question modifiées
+                                    let questtypemod = (question.questionType = getQuestionType(lesoptionsnew))
+                                    if (questtypemod == undefined) {
+                                        console.log("\n Bad format of question")
+                                        r1.close();
+                                    } else {
+                                        console.log("You added an", QuestionType.properties[questtypemod].name, "question\n")
+
+                                        fs.truncate("./Forms/" + forms[numform], 0, function () { }
+                                        )
+                                        fs.appendFile("./Forms/" + forms[numform], firstElement.trim() + "\n\n", err => {
+                                            if (err) {
+                                                console.error(err);
+                                            }
+                                        });
+                                        new Promise(r => setTimeout(r, 2000));
+                                        let newquestion;
+                                        for (var x = 0; x < questions.length; x++) {
+                                            if (x == num) {
+                                                //On modifie la question avec le nouveau contenu
+                                                resultcontent[x] = modified
+                                            }
+                                            newquestion = "::" + resultdetail[x] + "::" + resultcontent[x]
+                                            fs.appendFile("./Forms/" + forms[numform], newquestion + "\n\n", err => {
+                                                if (err) {
+                                                    console.error(err);
+                                                }
+                                            });
+                                        }
+
+                                        r1.close();
+
+
+
+                                    }
+                                })
+
+                            }
+
+                        }
+
+
+
+                    })
+
+                })
+            }
+        })
+    }
+})
