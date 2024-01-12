@@ -20,9 +20,9 @@ même question n’apparaisse qu’une seule fois dans le test.
 
 Le logiciel est developpé par le language de programmation JavaScript.
 
-##Licence:
+## Licence:
 
-Le logiciel est sous licence MIT( methylisothiazolinone ).
+Le logiciel est sous licence MIT.
 
 ## Installations nécessaires:
 
@@ -114,7 +114,7 @@ KOLEDZI.KO
 ZHU Hanyu
 SHI.JIAHAO
 
-#groupe les experts:
+# groupe les experts:
 
 JABOTE Mohamed Amine
 SIDQUI Youssef 
