@@ -1,587 +1,117 @@
-# GL02_Saitama
-
-
-## Context du projet
-
-Le cahier des charges demande de développer un logiciel en ligne de commande répondant aux besoins du ministère de l'éducation nationale de la république du Sealand (SRYEM). Le logiciel doit permettre aux enseignants et gestionnaires d'examen de préparer et de gérer les tests des élèves. Les principales fonctionnalités incluent la création d'examens à partir d'une banque de questions, la visualisation du profil d'examen GIFT, la vérification de la qualité des données, la création de fichiers de contact au format VCard, et la gestion complète des questions d'examen. Le respect des droits d'auteur et de la législation locale est également souligné, tout comme la confidentialité et la sécurité des informations.
-
-##  organisation de notre projet.
-
-project/
-
-- -src/
-- --commands/
-- --- createExam.js
-- --- addQuestion.js
-- --- selectQuestion.js
-- --- searchAndModifyQuestions.js
-- --- viewExamProfile.js
-- --- simulateExam.js
-- --- checkExamQuality.js
-- --- createVCard.js
-- --- compareExams.js
-- -parsers/
-- -- giftParser.js
-- -- vCardParser.js
-- -services/
-- -- examService.js
-- -- questionService.js
-- -- vCardService.js
-- -index.js
-- -package.json
-- -.gitignore
-- -README.md
-- -test/
-- -- createExam.test.js
-- -- addQuestion.test.js
-- -- selectQuestion.test.js
-- -- searchAndModifyQuestions.test.js
-- -- viewExamProfile.test.js
-- -- simulateExam.test.js
-- -- checkExamQuality.test.js
-- -- createVCard.test.js
-- -- compareExams.test.js
+# GL02_A23_SAITAMATEAN
 
-**Explications :**
 
-- **`src/commands/` :** Contient les fichiers de commandes Caporal pour chaque fonctionnalité spécifiée dans le cahier des charges.
 
-- **`parsers/` :** Contient les fichiers de parsing pour GIFT et VCard.
+## Description:
 
-- **`services/` :** Contient les fichiers de service qui gèrent la logique métier.
+La fonction principale de l’outil doit être de regrouper un ensemble de questions pour créer 
+un fichier GIFT d’examen. Dans ce cadre, le logiciel doit permettre à l’utilisateur de rechercher et 
+visualiser une question de la banque de données afin de la choisir pour l’ajouter au test.
 
-- **`index.js` :** Point d'entrée de l'application, où vous enregistrez vos commandes Caporal.
+L’utilitaire doit également permettre de générer un fichier d’identification et de contact des 
+enseignants au format VCard. Dans cet objectif, l’outil doit donc permettre en amont aux 
+enseignants de renseigner les données nécessaires afin de générer le fichier d’identification.
 
-- **`package.json` :** Fichier de configuration de votre projet Node.js.
+Par ailleurs, l’outil doit permettre de simuler la passation d’un test par un étudiant et 
+d’afficher un bilan des réponses à la fin de cette simulation. Afin de permettre de vérifier la qualité 
+des tests préparés, le logiciel doit permettre de vérifier que le test généré est conforme aux 
+indications du SYREM, c’est à dire qu’il comporte entre 15 et 20 questions et qu’une question 
+même question n’apparaisse qu’une seule fois dans le test.
 
-- **`.gitignore` :** Ignorer les fichiers indésirables lors du suivi des modifications avec Git.
+Le logiciel est developpé par le language de programmation JavaScript.
 
-- **`README.md` :** Documentation pour le projet.
+## Installations nécessaires:
 
-- **`test/` :** Contient les fichiers de test pour chaque fonctionnalité.
+$ npm install:  fs 
+                colors 
+                readline-sync
+                Caporal
+                @caporal/core 
+                vega
+                vega-lite 
 
-Adaptez cette structure en fonction de vos besoins spécifiques et assurez-vous que vos fichiers Caporal sont correctement configurés pour interagir avec les services que vous implémentez.
+## Les fonctions spécifiques:
 
-## Environnement
+- SPEC01 : définir d'ensemble de questions.
+- SPEC02 : Creation de different types de questions.
+- SPEC03 : possibilité de choisir les questions depuis la banque de questions.
+- SPEC04 : Permettre aux utilisateurs de chercher, affichage et choisir des questions.
+- SPEC05 : Visualisation d'un profile d'exam GIFT.
+- SPEC06 : Simulation d’une passation de test.
+- SPEC07 : Vérifier la qualité des données d'un examen
+- SPEC08 : Générer un fichier d’identification et de contact au format vCARD (RFC 6350).
+- SPEC09 : Comparer le profil d’un examen avec un ou plusieurs autre profiles.
 
-### Installation 
-pour installer son environement placez vous dans le projet dans le terminal et tapez :  npm install
+## Utilisation:
 
-### Aide avec git ( optionel)
-pour aller plus vite sur les commandes git je vous propose de vous rendre dans le terminal,
-- tapez la commande  : git config --global --edit
-- un fichie de config s'ouvre.
-- utiliser la fleche de bas pour defiler vers la fin
-- puis  collez : 
-[alias]
-  st = status
-  ci = commit
-  pu = push
-  pl = pull
-  lg = log --oneline --graph --decorate --all
-  co = checkout
-  cm = commit -m
-  br = branch
-  df = diff
-  hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
-  type = cat-file -t
-  dump = cat-file -p
-  last = log -1 HEAD
-  unstage = reset HEAD
-  amend = commit --amend
+- Démarrage
 
-- Ctl + X puis Y pour acceter d'enregistrer et sortir et en fin entrez.
+$ node caporalcli.js --help vous présentera les différentes commandes et leur objectif.
 
-#### La mise a distant de vos modifications  
-il y a deux branches principales sur le depot.
-- Main : pour avoir un code bien fait en rendu je serai le seul a manipuler cette branche
--dev : la branche sur laquelle tous les membres peuvent pusher ou puller. Mais avant de faire une operation vers cette branche distant rassurez vous que vous avez cree une branche en local propre a vous et que la fonctionalite a pusher est ok vous mergez ca avec le dev, vous testez et vous vous assurez que votre local est a jous avant de pusher.
+- SPEC01 et SPEC02
 
+$ node caporalcli.js create 
 
-## Liste des Tâches :
+Cette commande permet à l'utilisateur de créer un ensemble de questions de son choix et du type qu'il souhaite, puis les ajouter à exam exam existant ou à un nouveau exam qui sera exporté dans le dossier Forms.
 
-- **`createExam.js`**
+- SPEC03 ET SPEC04
 
-  - Implémentation de la commande createExam.
-  - Intégration avec examService.js.
-  - Tests unitaires pour la commande.
+$ node caporalcli.js select 
 
-- **`addQuestion.js`**
+Cette commande permet la recherche et la selection d'un ensemble de questions selon un mot clé depuis la banque de questions pour ensuite les rajouter à un exam.
 
-    -  Implémentation de la commande addQuestion.
-    - Intégration avec questionService.js.
+$ node caporalcli.js modify 
 
-    -  Tests unitaires pour la commande.
+La commande a pour objectif de modifier une question dans un exam.
 
-- **`selectQuestion.js`**
+$ node caporalcli.js delete
 
-     - Implémentation de la commande selectQuestion.
-    - Intégration avec questionService.js.
+cette commande permet la suppresion d'une ou un ensemble de questions dans un exam.
 
-     - Tests unitaires pour la commande.
+- SPEC05
 
-- **`searchAndModifyQuestions.js`**
+$ node caporalcli.js display 
 
-     - Implémentation de la commande searchAndModifyQuestions.
-    - Intégration avec questionService.js.
+La commande permet la Visualisation d'un profile d'exam.
 
-     - Tests unitaires pour la commande.
+- SPEC06
 
-- **`viewExamProfile.js`**
+$ node caporalcli.js simulate
 
-    - Implémentation de la commande viewExamProfile.
-    - Intégration avec examService.js.
+cette commande a pour objectif de simuler un exam et de donner un rapport à la fin.
 
-     - Tests unitaires pour la commande.
+- SPEC07
 
-- **`simulateExam.js`**
+$ node caporalcli.js check
 
-     - Implémentation de la commande simulateExam.
-    - Intégration avec examService.js.
-     - Génération de rapports d'examen.
+Avec cette commande on peut vérifier la qualité d'un exam et vérifier s'il contient entre 15-20 questions et des questions non répétées.
 
-     - Tests unitaires pour la commande.
+- SPEC08
 
-- **`checkExamQuality.js`**
+$ node caporalcli.js contact
 
-    -  Implémentation de la commande checkExamQuality.
-    - Intégration avec examService.js.
-    - Génération de rapports de vérification.
+La commande permet de créer un fichier contact pour l'enseignant, dans un format Vcard (RFC 6350)
 
-     - Tests unitaires pour la commande.
+- SPEC09
 
-- **`createVCard.js`**
+$ node caporalcli.js compare
 
-     - Implémentation de la commande createVCard.
-    - Intégration avec vCardService.js.
+la commande permet l'affichage d'un graphique contenant les détails d'un examen.
 
-     - Tests unitaires pour la commande.
+## Test Unitaire:
 
-- **`compareExams.js`**
+Des tests unitaires ont été implémentés pour vérifier le parseur et des fonctions, pour cela il faut utiliser: $ npm test le framework utilisé est Jasmine.
 
-     - Implémentation de la commande compareExams.
-    - Intégration avec examService.js.
+## Informations utiles:
 
-     - Tests unitaires pour la commande.
+Concernant la commande $ node caporalcli.js select :
 
-- **`giftParser.js`**
+Dans le cas d'un choix du type de question MATCHING, pour rentrer les phrases et les réponses qui leurs correspondent vos insertions ne s'affichent pas en temps réel mais ce que vous tapez avec le clavier est quand même pris en compte.
 
-     - Implémentation du parser pour les fichiers GIFT.
 
-     - Tests unitaires pour le parser.
+## Liste des contributeurs:
+VALIER Anna
+KOLEDZI.KO
+ZHU Hanyu
+SHI.JIAHAO
 
-- **`vCardParser.js`**
-
-     - Implémentation du parser pour les fichiers VCard.
-
-     - Tests unitaires pour le parser.
-
-- **`examService.js`**
-
-     - Logique métier pour la gestion des examens.
-
-     - Tests unitaires pour le service.
-
-- **`questionService.js`**
-
-    - Logique métier pour la gestion des questions.
-
-     - Tests unitaires pour le service.
-
-- **`vCardService.js`**
-
-    - Logique métier pour la gestion des fichiers VCard.
-
-     - Tests unitaires pour le service.
-
-- **`Tests unitaires généraux`**
-
-     - Mise en place des tests unitaires pour l'ensemble du projet.
-
-- **`Documentation`**
-
-    - Documentation complète pour chaque fichier.
-
-     - Commentaires explicatifs dans le code.
-
-- **`Intégration Continue`**
-
-     - Configuration de l'intégration continue (CI) pour exécuter les tests automatiquement.
-
-- **`Réunions d'Équipe`**
-
-     - Planification et participation à des réunions d'équipe régulières.
-
-- **`Coordination Générale`**
-
-    - Suivi et coordination générale des progrès.
-
-## Les membres de l'equite : 
-NB chaque membre code le tests unitaires pour les commandes ou services sur lesquels il a travaillé.
-
-### KOLEDZI Kokouvi mawudem
-    giftParser.js : 
-
-        Afin de créer un fichier GIFT utilisable par le logiciel, nous proposons d’utiliser la
-        grammaire ABNF suivante :
-
-
-
-        Questionnaire = 1*(Question/Commentaire)
-        Question = Titre TexteQuestion
-        Titre = ': :' WSP TEXT ': :' [Format]
-        Format = '[' 1*CHAR ']'
-        TexteQuestion = 1*(WSP/VCHAR/TypeQuestion)
-        TypeQuestion = '{'
-        1(ChoixMultiples/VraiFaux/Correspondance/MotManquant/Numérique/Ouverte) '}'
-        ChoixMultiples = 1*(~ TEXT [Rétroaction]/= TEXT [Rétroaction])
-        VraiFaux = 1('TRUE'/'T'/'FALSE'/'F') [Rétroaction]
-        Correspondance = 1*('=' TEXT '->' TEXT)
-        Ouverte = 1*('='TEXT) [Rétroaction]
-        Numérique = '#=' 1*DIGIT[':' 1*DIGIT] [Rétroaction]
-        MotManquant = 1*(~TEXT/~= TEXT) [Rétroaction]
-        Rétroaction = '#' TEXT
-        Commentaire = '//' 1*VCHAR
-        TEXT = 1*(WSP/VCHAR)
-
-
-        
-        Nous avons fait le choix d’écrire une règle pour chaque type de question afin que
-        l’écriture d’un fichier GIFT soit accessible à toutes personnes. Voici quelques explications
-        pour écrire une question :
-        •Choix multiples : les mauvaises propositions commencent par le caractère ~ et les
-        bonnes réponses par =
-        •Vrai ou faux : il suffit d’écrire la question puis d’ajouter {TRUE} pour une question
-        vraie ou {FALSE} pour une question fausse
-        •Correspondance : doit commencer par ‘= ‘puis une question puis ‘->’ avec la réponse
-        associée
-        •Mot maquant : il suffit d’ajouter dans le texte les accolades pour crée l’endroit du
-        trou dans le texte puis ajouter = devant la bonne réponse et ~ devant une proposition
-        fausse
-        •Numérique : il faut commencer par # puis =devant la bonne réponse, il est ensuite
-        possible d’ajouter une marge facultative en ajoutant ‘:’ puis un nombre
-        •Ouverte : il faut ajouter = devant la ou les bonnes réponses (comme par exemple
-        {=2 =deux})
-        
-        En plaçant un # dans les questions de tous les types sauf les questions de
-        correspondance, il est possible d’ajouter une rétroaction, qui est un commentaire de la
-        réponse.
-
-        Cette grammaire définit la syntaxe du format GIFT (General Import Format Template), qui est utilisé pour représenter des questionnaires ou des quiz dans un format textuel. Voici une explication de chaque règle de la grammaire :
-
-        1. **Questionnaire :**
-        - `1*(Question/Commentaire)`: Un questionnaire est constitué d'une séquence d'une ou plusieurs questions (`Question`) ou commentaires (`Commentaire`).
-
-        2. **Question :**
-        - `Titre TexteQuestion`: Une question est composée d'un titre (`Titre`) suivi du texte de la question (`TexteQuestion`).
-
-        3. **Titre :**
-        - `': :' WSP TEXT ': :' [Format]`: Le titre d'une question est encadré par `: :`, suivi d'un espace blanc (`WSP`), suivi du texte du titre (`TEXT`), suivi de `: :`. Il peut également inclure un format optionnel (`Format`).
-
-        4. **Format :**
-        - `['[' 1*CHAR ']']`: Le format est optionnel et est encadré par des crochets. Il peut contenir n'importe quel caractère (`CHAR`), représenté par `1*CHAR`.
-
-        5. **TexteQuestion :**
-        - `1*(WSP/VCHAR/TypeQuestion)`: Le texte d'une question peut contenir un ou plusieurs espaces blancs (`WSP`), caractères visibles (`VCHAR`), ou des types spécifiques de questions (`TypeQuestion`).
-
-        6. **TypeQuestion :**
-        - `'{1(ChoixMultiples/VraiFaux/Correspondance/MotManquant/Numérique/Ouverte)}'`: Le type de question est une séquence d'une des catégories spécifiées entre accolades. Les catégories incluent Choix Multiples (`ChoixMultiples`), Vrai/Faux (`VraiFaux`), Correspondance (`Correspondance`), Mot Manquant (`MotManquant`), Numérique (`Numérique`), ou Ouverte (`Ouverte`).
-
-        7. **ChoixMultiples :**
-        - `1*(~ TEXT [Rétroaction]/= TEXT [Rétroaction])`: Les choix multiples sont représentés par une séquence de texte (`TEXT`). Les mauvaises réponses commencent par `~`, et les bonnes réponses par `=`. Une rétroaction optionnelle (`Rétroaction`) peut suivre chaque réponse.
-
-        8. **VraiFaux :**
-        - `1('TRUE'/'T'/'FALSE'/'F') [Rétroaction]`: Les questions Vrai/Faux sont représentées par les valeurs `TRUE`, `T`, `FALSE`, ou `F`. Une rétroaction optionnelle (`Rétroaction`) peut suivre la réponse.
-
-        9. **Correspondance :**
-        - `1*('=' TEXT '->' TEXT)`: Les questions de correspondance commencent par `=` suivie du texte, puis `->` et le texte associé.
-
-        10. **Ouverte :**
-            - `1*('='TEXT) [Rétroaction]`: Les questions ouvertes commencent par `=` suivi du texte. Une rétroaction optionnelle (`Rétroaction`) peut suivre la réponse.
-
-        11. **Numérique :**
-            - `'#=' 1*DIGIT[':' 1*DIGIT] [Rétroaction]`: Les questions numériques commencent par `#=` suivi d'au moins un chiffre (`DIGIT`). Une marge facultative peut être spécifiée avec `:` et un ou plusieurs chiffres. Une rétroaction optionnelle (`Rétroaction`) peut suivre la réponse.
-
-        12. **MotManquant :**
-            - `1*(~TEXT/~= TEXT) [Rétroaction]`: Les questions à trous sont représentées par une séquence de texte (`TEXT`). Les réponses correctes commencent par `=~`. Une rétroaction optionnelle (`Rétroaction`) peut suivre chaque réponse.
-
-        13. **Rétroaction :**
-            - `'#' TEXT`: La rétroaction est représentée par `#` suivi du texte.
-
-        14. **Commentaire :**
-            - `'//' 1*VCHAR'`: Un commentaire commence par `//` et peut contenir un ou plusieurs caractères visibles (`VCHAR`).
-
-        15. **TEXT :**
-            - `1*(WSP/VCHAR)`: Le texte est une séquence d'espaces blancs (`WSP`) ou de caractères visibles (`VCHAR`).
-
-        Cela définit une structure pour représenter différentes types de questions et de commentaires dans le format GIFT, avec des règles spécifiques pour chaque type de question.
-
-    vCardParser.js: 
-
-        FichierVCard = 1*VCard
-        VCard = 'BEGIN:VCARD' CRLF 'VERSION:4.0' CRLF 1*Ligne 'END:VCARD' CRLF
-        Ligne = 1(Name/Fn/Tel/Email) CRLF
-        Name = 'N:' TEXT CRLF
-        Fn = 'FN:' TEXT CRLF
-        Tel = 'TEL;tel:' 10DIGIT CRLF
-        Email = 'EMAIL:' 1*ALPHA'@'1*CHAR'.'1*CHAR CRLF
-        TEXT = 1*(WSP/VCHAR)
-
-
-    examService.js
-    questionService.js
-    vCardService.js
-### ANNA
-   
-### SHI
-    createExam.js
-    addQuestion.js
-    viewExamProfile.js
-### HANYA
-    selectQuestion.js
-    searchAndModifyQuestions.js
-    simulateExam.js
-### HAKIM
-    checkExamQuality.js
-    createVCard.js
-    compareExams.js
-
-
-
-## La description des taches :
-### Services
-Dans le contexte d'une application en ligne de commande pour la gestion d'examens, les services sont responsables de la logique métier. Voici quelques indications sur ce que chaque service peut impliquer :
-
-    examService.js :
-        Création et gestion des examens.
-        Simulation d'examens.
-        Génération de rapports d'examen.
-        Vérification de la qualité des données pour les examens.
-        Comparaison d'examens.
-
-    questionService.js :
-        Création et gestion des questions.
-        Recherche et modification des questions.
-        Sélection de questions depuis une banque de questions.
-        Vérification de la qualité des données pour les questions.
-
-    vCardService.js :
-        Création et gestion des fichiers VCard.
-        Exportation des fichiers de contact pour les enseignants.
-        Vérification du format des fichiers VCard.
-
-Chaque service devrait être conçu de manière modulaire et encapsuler la logique métier associée à son domaine d'activité. Ces services peuvent interagir entre eux pour fournir les fonctionnalités complètes de l'application. Par exemple, examService peut utiliser des fonctions de questionService pour gérer les questions lors de la création d'examens.
-
-
-### Parsers
-
-Les parsers sont chargés de convertir les données provenant de fichiers externes (format GIFT et VCard dans ce cas) en objets compréhensibles par le reste de l'application. Voici à quoi peuvent ressembler les responsabilités de chaque parser :
-
-    giftParser.js :
-        Convertir des fichiers GIFT en objets JavaScript.
-        Interpréter la grammaire ABNF spécifiée dans le cahier des charges.
-        Créer des structures de données internes représentant des questions.
-
-    vCardParser.js :
-        Convertir des fichiers VCard en objets JavaScript.
-        Respecter la syntaxe spécifiée dans le cahier des charges.
-        Créer des structures de données internes représentant des informations de contact.
-
-Les parsers devraient être robustes pour gérer différentes variations et erreurs possibles dans les fichiers source. De plus, ils peuvent être utilisés par les services pour intégrer les données externes dans le système global de l'application.
-
-Les tests unitaires pour les parsers sont également essentiels pour garantir qu'ils interprètent correctement les données et qu'ils sont capables de gérer différentes situations.
-
-
-### Commandes
-
-Les commandes sont responsables de l'interaction avec l'utilisateur et d'exécuter des actions spécifiques du programme en fonction des entrées fournies par l'utilisateur. Voici à quoi peuvent ressembler les responsabilités de chaque commande dans le contexte de ce projet :
-
-1. **createExam.js :**
-   - Interagir avec l'utilisateur pour créer un nouvel examen.
-   - Utiliser `examService.js` pour gérer la logique métier associée à la création d'un examen.
-   - Afficher des messages à l'utilisateur pour indiquer le succès ou l'échec de l'opération.
-
-2. **addQuestion.js :**
-   - Permettre à l'utilisateur d'ajouter une question à un examen existant.
-   - Utiliser `questionService.js` pour gérer la logique métier associée à l'ajout de questions.
-   - Afficher des messages à l'utilisateur pour indiquer le succès ou l'échec de l'opération.
-
-3. **selectQuestion.js :**
-   - Permettre à l'utilisateur de sélectionner une question à partir d'une banque de questions.
-   - Utiliser `questionService.js` pour gérer la récupération des questions disponibles.
-   - Afficher les questions à l'utilisateur et lui permettre de faire des sélections.
-
-4. **searchAndModifyQuestions.js :**
-   - Permettre à l'utilisateur de rechercher, d'afficher et de modifier des questions dans un examen existant.
-   - Utiliser `questionService.js` pour gérer la logique métier associée à la recherche et à la modification de questions.
-   - Afficher des messages à l'utilisateur pour indiquer le succès ou l'échec de l'opération.
-
-5. **viewExamProfile.js :**
-   - Permettre à l'utilisateur de visualiser le profil d'un examen GIFT.
-   - Utiliser `examService.js` pour récupérer les informations de l'examen.
-   - Afficher les détails de l'examen à l'utilisateur.
-
-6. **simulateExam.js :**
-   - Permettre à l'utilisateur de simuler un examen et générer des rapports.
-   - Utiliser `examService.js` pour gérer la logique métier associée à la simulation d'un examen.
-   - Afficher des résultats ou des rapports à l'utilisateur.
-
-7. **checkExamQuality.js :**
-   - Permettre à l'utilisateur de vérifier la qualité d'un examen (pas de questions répétitives, nombre correct de questions, etc.).
-   - Utiliser `examService.js` pour gérer la logique métier associée à la vérification de la qualité de l'examen.
-   - Afficher des résultats ou des rapports à l'utilisateur.
-
-8. **createVCard.js :**
-   - Permettre à l'utilisateur de créer un fichier VCard pour un professeur.
-   - Utiliser `vCardService.js` pour gérer la logique métier associée à la création d'un fichier VCard.
-   - Afficher des messages à l'utilisateur pour indiquer le succès ou l'échec de l'opération.
-
-9. **compareExams.js :**
-   - Permettre à l'utilisateur de comparer différents profils d'examens.
-   - Utiliser `examService.js` pour récupérer les informations nécessaires.
-   - Afficher des graphiques ou des résultats de comparaison à l'utilisateur.
-
-Chaque commande devrait être conçue pour être modulaire et réutilisable, en utilisant les services pour effectuer les opérations métier et en fournissant un feedback clair à l'utilisateur. Les tests unitaires pour chaque commande sont essentiels pour s'assurer de leur bon fonctionnement.
-
-
-### Test
-
-Les tests unitaires sont une partie cruciale du processus de développement. Ils garantissent que chaque composant du logiciel fonctionne comme prévu individuellement, ce qui contribue à la fiabilité globale du système. Pour chaque commande, parser, et service que vous avez, vous devriez envisager d'écrire des tests unitaires correspondants.
-
-Voici une idée générale de ce que vous pourriez tester pour chaque composant :
-
-### Tests Unitaires pour les Commandes :
-1. **createExam.js :**
-   - Tester la création réussie d'un examen.
-   - Tester les scénarios d'échec de création d'un examen.
-   - Vérifier si les messages à l'utilisateur sont corrects.
-
-2. **addQuestion.js :**
-   - Tester l'ajout réussi d'une question à un examen existant.
-   - Tester les scénarios d'échec de l'ajout de question.
-   - Vérifier si les messages à l'utilisateur sont corrects.
-
-3. **selectQuestion.js :**
-   - Tester la sélection réussie d'une question.
-   - Tester les scénarios d'échec de la sélection de question.
-   - Vérifier si les questions sont correctement affichées.
-
-4. **searchAndModifyQuestions.js :**
-   - Tester la recherche et la modification réussies de questions dans un examen.
-   - Tester les scénarios d'échec de recherche et de modification de questions.
-   - Vérifier si les messages à l'utilisateur sont corrects.
-
-5. **viewExamProfile.js :**
-   - Tester la visualisation réussie du profil d'un examen.
-   - Tester les scénarios d'échec de la visualisation du profil.
-   - Vérifier si les détails de l'examen sont correctement affichés.
-
-6. **simulateExam.js :**
-   - Tester la simulation réussie d'un examen.
-   - Tester les scénarios d'échec de la simulation de l'examen.
-   - Vérifier si les résultats ou les rapports sont correctement générés.
-
-7. **checkExamQuality.js :**
-   - Tester la vérification réussie de la qualité d'un examen.
-   - Tester les scénarios d'échec de la vérification de la qualité de l'examen.
-   - Vérifier si les résultats ou les rapports sont correctement générés.
-
-8. **createVCard.js :**
-   - Tester la création réussie d'un fichier VCard.
-   - Tester les scénarios d'échec de la création du fichier VCard.
-   - Vérifier si les messages à l'utilisateur sont corrects.
-
-9. **compareExams.js :**
-   - Tester la comparaison réussie de différents profils d'examens.
-   - Tester les scénarios d'échec de la comparaison des profils d'examens.
-   - Vérifier si les résultats ou les graphiques sont correctement générés.
-
-### Tests Unitaires pour les Parsers :
-1. **giftParser.js :**
-   - Tester la bonne analyse des fichiers GIFT.
-   - Tester les scénarios d'échec d'analyse des fichiers GIFT.
-
-2. **vCardParser.js :**
-   - Tester la bonne analyse des fichiers VCard.
-   - Tester les scénarios d'échec d'analyse des fichiers VCard.
-
-### Tests Unitaires pour les Services :
-1. **examService.js :**
-   - Tester la logique métier associée à la gestion des examens.
-   - Tester les scénarios d'échec des opérations liées aux examens.
-
-2. **questionService.js :**
-   - Tester la logique métier associée à la gestion des questions.
-   - Tester les scénarios d'échec des opérations liées aux questions.
-
-3. **vCardService.js :**
-   - Tester la logique métier associée à la gestion des fichiers VCard.
-   - Tester les scénarios d'échec des opérations liées aux fichiers VCard.
-
-Chaque test unitaire devrait être conçu pour être indépendant des autres tests et devrait couvrir différents cas de scénarios d'utilisation. Vous pouvez utiliser des bibliothèques de test comme Jest, Mocha,jasmine ou d'autres, en fonction de votre environnement de développement JavaScript/Node.js mais dans notre cas nous allons utiliser  **jasmine**.
-
-### Index.js
-
-Le fichier `index.js` est souvent le point d'entrée principal de votre application. Il agrège généralement toutes les fonctionnalités et démarre le programme. Voici une structure générale que vous pourriez suivre pour votre `index.js` :
-
-```javascript
-// index.js
-
-// Importez les modules nécessaires
-const caporal = require('caporal');
-const createExamCommand = require('./src/commands/createExam');
-const addQuestionCommand = require('./src/commands/addQuestion');
-// ... Importez d'autres commandes
-
-// Configurez Caporal
-caporal
-  .version('1.0.0')
-  .description('Votre description ici');
-
-// Ajoutez les commandes
-createExamCommand.configure(caporal);
-addQuestionCommand.configure(caporal);
-// ... Configurez d'autres commandes
-
-// Lancez l'application
-caporal.parse(process.argv);
-```
-
-Chaque module de commande (`createExam.js`, `addQuestion.js`, etc.) devrait avoir une méthode `configure` qui prend l'objet `caporal` en argument et configure la commande correspondante. Voici à quoi cela pourrait ressembler :
-
-```javascript
-// createExam.js
-
-// Importez les modules nécessaires
-const examService = require('../services/examService');
-
-// Configurez la commande
-function configure(caporal) {
-  caporal
-    .command('create-exam', 'Description de la commande')
-    .action(({ logger }) => {
-      // Implémentez la logique de la commande ici
-      const exam = examService.createExam();
-      logger.info('Examen créé avec succès:', exam);
-    });
-}
-
-// Exportez la méthode configure
-module.exports = { configure };
-```
-
-De cette façon, chaque module de commande est responsable de sa propre configuration, ce qui facilite l'ajout ou la modification de commandes individuelles. Vous pouvez suivre une approche similaire pour les autres modules (`addQuestion.js`, `selectQuestion.js`, etc.).
-
-
-## Exemple : 
-POI.js
-VpfParser.js
-Sample.vpf
-caporalCli.js
-spec/
-
-###pour aller plus rapidement avec git
-
-
-
-# Merci Bon travail a tous. Un travail bien fait est toujours valorisé.
