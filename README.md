@@ -102,11 +102,6 @@ la commande permet l'affichage d'un graphique contenant les détails d'un examen
 
 Des tests unitaires ont été implémentés pour vérifier le parseur et des fonctions, pour cela il faut utiliser: $ npm test le framework utilisé est Jasmine.
 
-## Informations utiles:
-
-Concernant la commande $ node caporalcli.js select :
-
-Dans le cas d'un choix du type de question MATCHING, pour rentrer les phrases et les réponses qui leurs correspondent vos insertions ne s'affichent pas en temps réel mais ce que vous tapez avec le clavier est quand même pris en compte.
 
 
 ## Liste des contributeurs:
